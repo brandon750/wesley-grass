@@ -74,9 +74,9 @@ export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width 
         pointerSmoothed.copy(pointerTarget)
         hasPointer.current = true
       } else {
-        pointerSmoothed.x = THREE.MathUtils.damp(pointerSmoothed.x, pointerTarget.x, 2, delta)
-        pointerSmoothed.y = THREE.MathUtils.damp(pointerSmoothed.y, pointerTarget.y, 2, delta)
-        pointerSmoothed.z = THREE.MathUtils.damp(pointerSmoothed.z, pointerTarget.z, 2, delta)
+        pointerSmoothed.x = THREE.MathUtils.damp(pointerSmoothed.x, pointerTarget.x, 4, delta)
+        pointerSmoothed.y = THREE.MathUtils.damp(pointerSmoothed.y, pointerTarget.y, 4, delta)
+        pointerSmoothed.z = THREE.MathUtils.damp(pointerSmoothed.z, pointerTarget.z, 4, delta)
       }
       mat.uniforms.pointer.value.copy(pointerSmoothed)
     } else {

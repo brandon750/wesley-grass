@@ -78,7 +78,7 @@ class CameraRigController {
   }
 }
 
-export default function CameraRig({ target, damping = 2, lookAmplitudeX = 2, lookAmplitudeY = 1.2, xAmplitude = 0, yAmplitude = 0, deadZone = 0.15 }) {
+export default function CameraRig({ target, damping = 2, lookAmplitudeX = 4, lookAmplitudeY = 4, xAmplitude = 0, yAmplitude = 0, deadZone = 0.15 }) {
   const { camera } = useThree()
   const rig = useRef(null)
 

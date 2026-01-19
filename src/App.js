@@ -142,7 +142,7 @@ export default function App() {
       <Canvas shadows dpr={[1, 2]}>
         <RendererConfig />
         <CameraRig />
-        <CustomSky />
+        {/* <CustomSky /> */}
         <hemisphereLight intensity={0.35} color="#ffffff" groundColor="#06080a" />
         <ambientLight intensity={0.12} />
         <directionalLight
@@ -162,7 +162,7 @@ export default function App() {
         <directionalLight position={[-20, 15, -40]} intensity={0.35} />
         {/* <DustParticles /> */}
         <Suspense fallback={null}>
-          <Environment files="/golden_gate_hills_1k.hdr" />
+          <Environment files="/golden_gate_hills_1k.hdr" background="true" />
           <Grass />
           <Wyvern position={WYVERN_POSITION} rotation={WYVERN_ROTATION} scale={WYVERN_SCALE} />
           <Swan position={SWAN_POSITION} rotation={SWAN_ROTATION} scale={SWAN_SCALE} />
