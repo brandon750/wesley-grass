@@ -13,6 +13,7 @@
     "@react-three/drei": "9.4.2",
     "@react-three/fiber": "^8.15.16",
     "@react-three/postprocessing": "2.6.1",
+    "gsap": "^3.12.5",
     "postprocessing": "6.29.3",
     "react": "18.0.0",
     "react-dom": "18.0.0",
@@ -21,6 +22,9 @@
     "three": "0.139.2"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
     "typescript": "3.8.3"
   },
   "scripts": {

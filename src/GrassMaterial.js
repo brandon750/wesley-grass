@@ -8,6 +8,10 @@ const GrassMaterial = shaderMaterial(
     map: null,
     alphaMap: null,
     time: 0,
+    pointer: new THREE.Vector3(100000, 0, 100000),
+    pointerStrength: 0,
+    pointerRadius: 8,
+    pointerPush: 2,
     tipColor: new THREE.Color(0.0, 0.6, 0.0).convertSRGBToLinear(),
     bottomColor: new THREE.Color(0.0, 0.1, 0.0).convertSRGBToLinear(),
   },
@@ -19,6 +23,10 @@ const GrassMaterial = shaderMaterial(
       attribute float stretch;
       uniform float time;
       uniform float bladeHeight;
+      uniform vec3 pointer;
+      uniform float pointerStrength;
+      uniform float pointerRadius;
+      uniform float pointerPush;
       varying vec2 vUv;
       varying float frc;
       
@@ -86,6 +94,15 @@ const GrassMaterial = shaderMaterial(
        //Apply wind
        float halfAngle = noise * 0.15;
         vPosition = rotateVectorByQuaternion(vPosition, normalize(vec4(sin(halfAngle), 0.0, -sin(halfAngle), cos(halfAngle))));
+
+        vec2 delta = offset.xz - pointer.xz;
+        float dist = length(delta);
+        float influence = 1.0 - smoothstep(pointerRadius * 0.6, pointerRadius, dist);
+        influence *= pointerStrength;
+        vec2 away = normalize(delta + vec2(0.0001));
+        float push = pointerPush * influence * pow(frc, 1.5);
+        vPosition.x += away.x * push;
+        vPosition.z += away.y * push;
         //UV for texture
         vUv = uv;
         //Calculate final position of the vertex from the world offset and the above shenanigans 

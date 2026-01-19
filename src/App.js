@@ -6,10 +6,11 @@ import * as THREE from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import CameraRig from "./CameraRig"
 import Grass from "./Grass"
-import wyvernUrl from "./resources/wyvern-w-material.glb"
-import swanUrl from "./resources/swan-w-material.glb"
-import shellsUrl from "./resources/shells-w-material.glb"
 import Logo from "./resources/logo"
+
+import Shells from "./Shells"
+import Wyvern from "./Wyvern"
+import Swan from "./Swan"
 
 const sun = new THREE.Vector3()
 const effectController = {
@@ -69,51 +70,6 @@ function applyModelDefaults(root) {
       mat.needsUpdate = true
     })
   })
-}
-
-function Wyvern() {
-  const gltf = useLoader(GLTFLoader, wyvernUrl)
-
-  useEffect(() => {
-    applyModelDefaults(gltf.scene)
-  }, [gltf])
-
-  // -- WYVERN CONTROLS --
-  const wyvernPosition = WYVERN_POSITION // [x, y, z]
-  const wyvernRotation = WYVERN_ROTATION // [x, y, z] in radians
-  const wyvernScale = WYVERN_SCALE // [x, y, z]
-
-  return <primitive object={gltf.scene} position={wyvernPosition} rotation={wyvernRotation} scale={wyvernScale} />
-}
-
-function Swan() {
-  const gltf = useLoader(GLTFLoader, swanUrl)
-
-  useEffect(() => {
-    applyModelDefaults(gltf.scene)
-  }, [gltf])
-
-  // -- SWAN CONTROLS --
-  const swanPosition = SWAN_POSITION // [x, y, z]
-  const swanRotation = SWAN_ROTATION // [x, y, z] in radians
-  const swanScale = SWAN_SCALE // [x, y, z]
-
-  return <primitive object={gltf.scene} position={swanPosition} rotation={swanRotation} scale={swanScale} />
-}
-
-function Shells() {
-  const gltf = useLoader(GLTFLoader, shellsUrl)
-
-  useEffect(() => {
-    applyModelDefaults(gltf.scene)
-  }, [gltf])
-
-  // -- SHELLS CONTROLS --
-  const shellsPosition = SHELLS_POSITION // [x, y, z]
-  const shellsRotation = SHELLS_ROTATION // [x, y, z] in radians
-  const shellsScale = SHELLS_SCALE // [x, y, z]
-
-  return <primitive object={gltf.scene} position={shellsPosition} rotation={shellsRotation} scale={shellsScale} />
 }
 
 function RendererConfig() {
@@ -208,19 +164,37 @@ export default function App() {
         <Suspense fallback={null}>
           <Environment files="/golden_gate_hills_1k.hdr" />
           <Grass />
-          <Wyvern />
-          <Swan />
-          <Shells />
+          <Wyvern position={WYVERN_POSITION} rotation={WYVERN_ROTATION} scale={WYVERN_SCALE} />
+          <Swan position={SWAN_POSITION} rotation={SWAN_ROTATION} scale={SWAN_SCALE} />
+          <Shells position={SHELLS_POSITION} rotation={SHELLS_ROTATION} scale={SHELLS_SCALE} />
         </Suspense>
         <EffectComposer>
           <DepthOfField focusDistance={0} focalLength={0.2} bokehScale={24} height={720} target={DOF_TARGET} />
         </EffectComposer>
       </Canvas>
-      <div class="container">
+      <div class="container pointer-events-none">
         <Logo />
         <div class="heading">
-          <span>Welcome to Wesley College, Founded in 1923</span>
+          <span class="text-center">Welcome to Wesley College, Founded in 1923</span>
           <h1>By daring & by doing</h1>
+          {/* <div class="notifications absolute font-lato-light bottom-0 right-0 p-3 w-fit text-white font-lato uppercase flex flex-col gap-0.5 border border-white/10 m-4 rounded-xl bg-white/5 backdrop-blur-sm">
+            <div class="flex flex-row gap-1 whitespace-nowrap ">
+              <span class="!text-[12px] opacity-50">Upcoming Community Open Day </span>
+              <span class="!text-[12px] opacity-50">· 2 Jan</span>
+            </div>
+            <div class="flex flex-row gap-1 whitespace-nowrap ">
+              <span class="!text-[12px] opacity-60">2025 ATAR Student Achievement Recognition</span>
+              <span class="!text-[12px] opacity-50">· 6 Jan</span>
+            </div>
+            <div class="flex flex-row gap-1 whitespace-nowrap ">
+              <span class="!text-[12px] opacity-80">Join us for the 2026 Wyvern Gala Ball</span>
+              <span class="!text-[12px] opacity-50">· 16 Jan</span>
+            </div>
+            <div class="flex flex-row gap-1 whitespace-nowrap">
+              <span class="!text-[12px]">View our new centenary building project!</span>
+              <span class="!text-[12px] opacity-50">· 20 Jan</span>
+            </div>
+          </div> */}
         </div>
       </div>
       <div class="bottom-gradient"></div>

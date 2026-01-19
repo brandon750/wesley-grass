@@ -29,6 +29,13 @@ export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width 
   const [texture, alphaMap] = useLoader(THREE.TextureLoader, [bladeDiffuse, bladeAlpha])
   const attributeData = useMemo(() => getAttributeData(instances, width), [instances, width])
   const baseGeom = useMemo(() => new THREE.PlaneBufferGeometry(bW, bH, 1, joints).translate(0, bH / 2, 0), [options])
+  const pointerPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), [])
+  const pointerPoint = useMemo(() => new THREE.Vector3(), [])
+  const pointerTarget = useMemo(() => new THREE.Vector3(100000, 0, 100000), [])
+  const pointerSmoothed = useMemo(() => new THREE.Vector3(100000, 0, 100000), [])
+  const pointerStrength = useRef(0)
+  const hasPointer = useRef(false)
+  const pointerMaxDistance = 40
   const groundGeo = useMemo(() => {
     const geo = new Geometry().fromBufferGeometry(new THREE.PlaneGeometry(width, width, 32, 32))
     geo.verticesNeedUpdate = true
@@ -40,7 +47,42 @@ export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width 
     geo.computeVertexNormals()
     return geo.toBufferGeometry()
   }, [width])
-  useFrame((state) => (materialRef.current.uniforms.time.value = state.clock.elapsedTime / 4))
+  useFrame((state, delta) => {
+    const mat = materialRef.current
+    if (!mat) return
+
+    mat.uniforms.time.value = state.clock.elapsedTime / 4
+
+    const hit = state.raycaster.ray.intersectPlane(pointerPlane, pointerPoint)
+    const targetStrength = hit ? 1 : 0
+    pointerStrength.current = THREE.MathUtils.damp(pointerStrength.current, targetStrength, 3, delta)
+    mat.uniforms.pointerStrength.value = pointerStrength.current
+
+    if (hit) {
+      const cam = state.camera.position
+      const dx = pointerPoint.x - cam.x
+      const dz = pointerPoint.z - cam.z
+      const len = Math.sqrt(dx * dx + dz * dz)
+      if (len > pointerMaxDistance) {
+        const s = pointerMaxDistance / len
+        pointerTarget.set(cam.x + dx * s, 0, cam.z + dz * s)
+      } else {
+        pointerTarget.set(pointerPoint.x, 0, pointerPoint.z)
+      }
+
+      if (!hasPointer.current) {
+        pointerSmoothed.copy(pointerTarget)
+        hasPointer.current = true
+      } else {
+        pointerSmoothed.x = THREE.MathUtils.damp(pointerSmoothed.x, pointerTarget.x, 2, delta)
+        pointerSmoothed.y = THREE.MathUtils.damp(pointerSmoothed.y, pointerTarget.y, 2, delta)
+        pointerSmoothed.z = THREE.MathUtils.damp(pointerSmoothed.z, pointerTarget.z, 2, delta)
+      }
+      mat.uniforms.pointer.value.copy(pointerSmoothed)
+    } else {
+      hasPointer.current = false
+    }
+  })
   return (
     <group {...props}>
       <mesh castShadow>
@@ -51,7 +93,7 @@ export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width 
           <instancedBufferAttribute attach={"attributes-halfRootAngleSin"} args={[new Float32Array(attributeData.halfRootAngleSin), 1]} />
           <instancedBufferAttribute attach={"attributes-halfRootAngleCos"} args={[new Float32Array(attributeData.halfRootAngleCos), 1]} />
         </instancedBufferGeometry>
-        <grassMaterial ref={materialRef} map={texture} alphaMap={alphaMap} toneMapped={false} />
+        <grassMaterial ref={materialRef} map={texture} alphaMap={alphaMap} toneMapped={false} pointerRadius={8} pointerPush={0.25} />
       </mesh>
       <mesh position={[0, 0, 0]} geometry={groundGeo} receiveShadow>
         <meshPhongMaterial color="#000000" />
