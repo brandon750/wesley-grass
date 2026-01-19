@@ -23,7 +23,7 @@ const createRandom = (seed = 1) => {
 const seededRandom = createRandom(12355)
 const simplex = new SimplexNoise(seededRandom)
 
-export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width = 100, instances = 100000, ...props }) {
+export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width = 100, instances = 80000, ...props }) {
   const { bW, bH, joints } = options
   const materialRef = useRef()
   const [texture, alphaMap] = useLoader(THREE.TextureLoader, [bladeDiffuse, bladeAlpha])
