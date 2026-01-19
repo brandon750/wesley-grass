@@ -9,9 +9,21 @@ import bladeDiffuse from "./resources/blade_diffuse.jpg"
 import bladeAlpha from "./resources/blade_alpha.jpg"
 import "./GrassMaterial"
 
-const simplex = new SimplexNoise(Math.random)
+const createRandom = (seed = 1) => {
+  let value = seed
+  return () => {
+    value |= 0
+    value = (value + 0x6d2b79f5) | 0
+    let t = Math.imul(value ^ (value >>> 15), 1 | value)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
 
-export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width = 100, instances = 50000, ...props }) {
+const seededRandom = createRandom(12355)
+const simplex = new SimplexNoise(seededRandom)
+
+export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width = 100, instances = 100000, ...props }) {
   const { bW, bH, joints } = options
   const materialRef = useRef()
   const [texture, alphaMap] = useLoader(THREE.TextureLoader, [bladeDiffuse, bladeAlpha])
@@ -31,7 +43,7 @@ export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width 
   useFrame((state) => (materialRef.current.uniforms.time.value = state.clock.elapsedTime / 4))
   return (
     <group {...props}>
-      <mesh>
+      <mesh castShadow>
         <instancedBufferGeometry index={baseGeom.index} attributes-position={baseGeom.attributes.position} attributes-uv={baseGeom.attributes.uv}>
           <instancedBufferAttribute attach={"attributes-offset"} args={[new Float32Array(attributeData.offsets), 3]} />
           <instancedBufferAttribute attach={"attributes-orientation"} args={[new Float32Array(attributeData.orientations), 4]} />
@@ -41,8 +53,8 @@ export default function Grass({ options = { bW: 0.12, bH: 1, joints: 5 }, width 
         </instancedBufferGeometry>
         <grassMaterial ref={materialRef} map={texture} alphaMap={alphaMap} toneMapped={false} />
       </mesh>
-      <mesh position={[0, 0, 0]} geometry={groundGeo}>
-        <meshStandardMaterial color="#000f00" />
+      <mesh position={[0, 0, 0]} geometry={groundGeo} receiveShadow>
+        <meshPhongMaterial color="#000000" />
       </mesh>
     </group>
   )
@@ -65,14 +77,14 @@ function getAttributeData(instances, width) {
   //For each instance of the grass blade
   for (let i = 0; i < instances; i++) {
     //Offset of the roots
-    const offsetX = Math.random() * width - width / 2
-    const offsetZ = Math.random() * width - width / 2
+    const offsetX = seededRandom() * width - width / 2
+    const offsetZ = seededRandom() * width - width / 2
     const offsetY = getYPosition(offsetX, offsetZ)
     offsets.push(offsetX, offsetY, offsetZ)
 
     //Define random growth directions
     //Rotate around Y
-    let angle = Math.PI - Math.random() * (2 * Math.PI)
+    let angle = Math.PI - seededRandom() * (2 * Math.PI)
     halfRootAngleSin.push(Math.sin(0.5 * angle))
     halfRootAngleCos.push(Math.cos(0.5 * angle))
 
@@ -84,7 +96,7 @@ function getAttributeData(instances, width) {
     quaternion_0.set(x, y, z, w).normalize()
 
     //Rotate around X
-    angle = Math.random() * (max - min) + min
+    angle = seededRandom() * (max - min) + min
     RotationAxis = new THREE.Vector3(1, 0, 0)
     x = RotationAxis.x * Math.sin(angle / 2.0)
     y = RotationAxis.y * Math.sin(angle / 2.0)
@@ -96,7 +108,7 @@ function getAttributeData(instances, width) {
     quaternion_0 = multiplyQuaternions(quaternion_0, quaternion_1)
 
     //Rotate around Z
-    angle = Math.random() * (max - min) + min
+    angle = seededRandom() * (max - min) + min
     RotationAxis = new THREE.Vector3(0, 0, 1)
     x = RotationAxis.x * Math.sin(angle / 2.0)
     y = RotationAxis.y * Math.sin(angle / 2.0)
@@ -111,9 +123,9 @@ function getAttributeData(instances, width) {
 
     //Define variety in height
     if (i < instances / 3) {
-      stretches.push(Math.random() * 1.8)
+      stretches.push(seededRandom() * 1.8)
     } else {
-      stretches.push(Math.random())
+      stretches.push(seededRandom())
     }
   }
 
